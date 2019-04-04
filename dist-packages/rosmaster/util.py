@@ -95,5 +95,3 @@ def log_operation(name, *args):
         for arg in args:
             file.write("%s "%(arg))
         file.write('\n')
-        blabazeaz
-
