@@ -273,14 +273,15 @@ class ROSMasterHandler(object):
 
     def _restore_state(self):
         prefix = "/home/nosa/Documents"
-        with open("%s/ros_log.log"%prefix, "r") as file:
-            for line in file.readlines():
-                args = line.split()
-                for arg in args:
-                    if arg[0] == "registerPublisher":
-                        with open("%s%s" %(prefix, arg[1]), "rb") as cb_file:
+        if os.path.isfile("%s/ros_log.log"%prefix):
+            with open("%s/ros_log.log"%prefix, "r") as file:
+                for line in file.readlines():
+                    args = line.split(" ")
+                    if args[0] == "registerPublisher":
+                        with open(args[4], "rb") as cb_file:
                             caller_api = pickle.load(cb_file)
-                            self.registerPublisher(arg[1], arg[2], arg[3], caller_api, True)
+                            res = self.restorePublisher(args[1], args[2], args[3], caller_api)
+                            print(res)
 
     def _shutdown(self, reason=''):
         if self.thread_pool is not None:
@@ -743,7 +744,7 @@ class ROSMasterHandler(object):
             self.ps_lock.release()
 
     @apivalidate(0, ( is_topic('topic'), valid_type_name('topic_type'), is_api('caller_api')))
-    def registerPublisher(self, caller_id, topic, topic_type, caller_api,restoring=False):
+    def registerPublisher(self, caller_id, topic, topic_type, caller_api):
         """
         Register the caller as a publisher the topic.
         @param caller_id: ROS caller id
@@ -771,8 +772,40 @@ class ROSMasterHandler(object):
             self._notify_topic_subscribers(topic, pub_uris, sub_uris)
             mloginfo("+PUB [%s] %s %s",topic, caller_id, caller_api)
             sub_uris = self.subscribers.get_apis(topic)
-            if restoring == True:
-                log_operation("registerPublisher", caller_id, caller_api, topic, topic_type)      
+            log_operation("registerPublisher", caller_id, caller_api, topic, topic_type)      
+        finally:
+            self.ps_lock.release()
+        return 1, "Registered [%s] as publisher of [%s]"%(caller_id, topic), sub_uris
+        
+    @apivalidate(0, ( is_topic('topic'), valid_type_name('topic_type'), is_api('caller_api')))
+    def restorePublisher(self, caller_id, topic, topic_type, caller_api):
+        """
+        Register the caller as a publisher the topic.
+        @param caller_id: ROS caller id
+        @type  caller_id: str
+        @param topic: Fully-qualified name of topic to register.
+        @type  topic: str
+        @param topic_type: Datatype for topic. Must be a
+        package-resource name, i.e. the .msg name.
+        @type  topic_type: str
+        @param caller_api str: ROS caller XML-RPC API URI
+        @type  caller_api: str
+        @return: (code, statusMessage, subscriberApis).
+        List of current subscribers of topic in the form of XMLRPC URIs.
+        @rtype: (int, str, [str])
+        """
+        #NOTE: we need topic_type for getPublishedTopics.
+        try:
+            self.ps_lock.acquire()
+            self.reg_manager.register_publisher(topic, caller_id, caller_api)
+            # don't let '*' type squash valid typing
+            if topic_type != rosgraph.names.ANYTYPE or not topic in self.topics_types:
+                self.topics_types[topic] = topic_type
+            pub_uris = self.publishers.get_apis(topic)
+            sub_uris = self.subscribers.get_apis(topic)
+            self._notify_topic_subscribers(topic, pub_uris, sub_uris)
+            mloginfo("+PUB [%s] %s %s",topic, caller_id, caller_api)
+            sub_uris = self.subscribers.get_apis(topic)    
         finally:
             self.ps_lock.release()
         return 1, "Registered [%s] as publisher of [%s]"%(caller_id, topic), sub_uris
