@@ -277,11 +277,15 @@ class ROSMasterHandler(object):
             with open("%s/ros_log.log"%prefix, "r") as file:
                 for line in file.readlines():
                     args = line.split(" ")
-                    if args[0] == "registerPublisher":
+                    if args[0] == "registerPublisher" or "registerSubscriber":
                         with open(args[4], "rb") as cb_file:
                             caller_api = pickle.load(cb_file)
-                            res = self.restorePublisher(args[1], args[2], args[3], caller_api)
-                            print(res)
+                            if args[0] == "registerPublisher":
+                                self.restorePublisher(args[1], args[2], args[3], caller_api)
+                            elif args[0] == "registerSubscriber":
+                                res = self.restoreSubscriber(args[1], args[2], args[3], caller_api)
+                                print(res)
+
 
     def _shutdown(self, reason=''):
         if self.thread_pool is not None:
@@ -715,6 +719,41 @@ class ROSMasterHandler(object):
 
             mloginfo("+SUB [%s] %s %s",topic, caller_id, caller_api)
             pub_uris = self.publishers.get_apis(topic)
+            log_operation("registerSubscriber", caller_id, caller_api, topic, topic_type)      
+        finally:
+            self.ps_lock.release()
+        return 1, "Subscribed to [%s]"%topic, pub_uris
+
+    @apivalidate(0, ( is_topic('topic'), valid_type_name('topic_type'), is_api('caller_api')))
+    def restoreSubscriber(self, caller_id, topic, topic_type, caller_api):
+        """
+        Subscribe the caller to the specified topic. In addition to receiving
+        a list of current publishers, the subscriber will also receive notifications
+        of new publishers via the publisherUpdate API.        
+        @param caller_id: ROS caller id
+        @type  caller_id: str
+        @param topic str: Fully-qualified name of topic to subscribe to. 
+        @param topic_type: Datatype for topic. Must be a package-resource name, i.e. the .msg name.
+        @type  topic_type: str
+        @param caller_api: XML-RPC URI of caller node for new publisher notifications
+        @type  caller_api: str
+        @return: (code, message, publishers). Publishers is a list of XMLRPC API URIs
+           for nodes currently publishing the specified topic.
+        @rtype: (int, str, [str])
+        """
+        #NOTE: subscribers do not get to set topic type
+        try:
+            self.ps_lock.acquire()
+            self.reg_manager.register_subscriber(topic, caller_id, caller_api)
+
+            # ROS 1.1: subscriber can now set type if it is not already set
+            #  - don't let '*' type squash valid typing
+            if not topic in self.topics_types and topic_type != rosgraph.names.ANYTYPE:
+                self.topics_types[topic] = topic_type
+
+            mloginfo("+SUB [%s] %s %s",topic, caller_id, caller_api)
+            pub_uris = self.publishers.get_apis(topic)
+
         finally:
             self.ps_lock.release()
         return 1, "Subscribed to [%s]"%topic, pub_uris
