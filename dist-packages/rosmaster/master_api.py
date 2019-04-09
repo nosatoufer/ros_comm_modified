@@ -277,14 +277,21 @@ class ROSMasterHandler(object):
             with open("%s/ros_log.log"%prefix, "r") as file:
                 for line in file.readlines():
                     args = line.split(" ")
-                    if args[0] == "registerPublisher" or "registerSubscriber":
-                        with open(args[4], "rb") as cb_file:
+                    if args[0] in("registerPublisher", "registerSubscriber","unregisterSubscriber", "unregisterPublisher"):
+                        with open("%s%s.dat"%(prefix, args[1]), "rb") as cb_file:
                             caller_api = pickle.load(cb_file)
                             if args[0] == "registerPublisher":
                                 self.restorePublisher(args[1], args[2], args[3], caller_api)
                             elif args[0] == "registerSubscriber":
-                                res = self.restoreSubscriber(args[1], args[2], args[3], caller_api)
+                                self.restoreSubscriber(args[1], args[2], args[3], caller_api)
+                    #elif args[0] in ("unregisterSubscriber", "unregisterPublisher"):
+                            elif args[0] == "unregisterPublisher":
+                                res = self.unrestorePublisher(args[1], args[2], caller_api)
                                 print(res)
+                            elif args[0] == "unregisterSubscriber":
+                                res = self.unrestoreSubscriber(args[1], args[2], caller_api)
+                                print(res)
+
 
 
     def _shutdown(self, reason=''):
@@ -778,6 +785,18 @@ class ROSMasterHandler(object):
             self.ps_lock.acquire()
             retval = self.reg_manager.unregister_subscriber(topic, caller_id, caller_api)
             mloginfo("-SUB [%s] %s %s",topic, caller_id, caller_api)
+            log_operation("unregisterSubscriber", caller_id, caller_api, topic)      
+            return retval
+        finally:
+            self.ps_lock.release()
+
+
+    @apivalidate(0, (is_topic('topic'), is_api('caller_api')))
+    def unrestoreSubscriber(self, caller_id, topic, caller_api):
+        try:
+            self.ps_lock.acquire()
+            retval = self.reg_manager.unregister_subscriber(topic, caller_id, caller_api)
+            mloginfo("-SUB [%s] %s %s",topic, caller_id, caller_api)
             return retval
         finally:
             self.ps_lock.release()
@@ -867,6 +886,20 @@ class ROSMasterHandler(object):
            The call still succeeds as the intended final state is reached.
         @rtype: (int, str, int)
         """            
+        try:
+            self.ps_lock.acquire()
+            retval = self.reg_manager.unregister_publisher(topic, caller_id, caller_api)
+            if retval[VAL]:
+                self._notify_topic_subscribers(topic, self.publishers.get_apis(topic), self.subscribers.get_apis(topic))
+            mloginfo("-PUB [%s] %s %s",topic, caller_id, caller_api)
+            log_operation("unregisterPublisher", caller_id, caller_api, topic)      
+        finally:
+            self.ps_lock.release()
+        return retval
+
+
+    @apivalidate(0, (is_topic('topic'), is_api('caller_api')))
+    def unrestorePublisher(self, caller_id, topic, caller_api):            
         try:
             self.ps_lock.acquire()
             retval = self.reg_manager.unregister_publisher(topic, caller_id, caller_api)
