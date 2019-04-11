@@ -91,12 +91,12 @@ def remove_server_proxy(uri):
         del _proxies[uri]
 
 def log_operation(name, caller_id, callback, *args):
-    with open("/home/nosa/Documents/ros_log.log", 'a') as file:
+    with open("~/ros_log.log", 'a') as file:
         file.write("%s %s" %(name, caller_id))
         for arg in args:
             file.write(" %s"%(arg))
         if callback is not None:
-            filename = "/home/nosa/Documents%s.dat" % (caller_id)
+            filename = "~%s.dat" % (caller_id)
             with open(filename, "wb+") as cb_file:
                 pickle.dump(callback, cb_file)
                 file.write(" %s" % filename)

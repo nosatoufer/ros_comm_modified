@@ -272,7 +272,7 @@ class ROSMasterHandler(object):
         self._restore_state()
 
     def _restore_state(self):
-        prefix = "/home/nosa/Documents"
+        prefix = "~"
         if os.path.isfile("%s/ros_log.log"%prefix):
             with open("%s/ros_log.log"%prefix, "r") as file:
                 for line in file.readlines():
@@ -284,7 +284,6 @@ class ROSMasterHandler(object):
                                 self.restorePublisher(args[1], args[2], args[3], caller_api)
                             elif args[0] == "registerSubscriber":
                                 self.restoreSubscriber(args[1], args[2], args[3], caller_api)
-                    #elif args[0] in ("unregisterSubscriber", "unregisterPublisher"):
                             elif args[0] == "unregisterPublisher":
                                 res = self.unrestorePublisher(args[1], args[2], caller_api)
                                 print(res)
