@@ -66,7 +66,7 @@ TIMEOUT_READY = 15.0 #seconds
 
 # log level constants
 from rosgraph_msgs.msg import Log
-from rosgraph_msgs.msg import String
+from std_msgs.msg import String
 from roscpp.srv import GetLoggers, GetLoggersResponse, SetLoggerLevel, SetLoggerLevelResponse
 from roscpp.msg import Logger
 from rospy.impl.tcpros_service import Service
