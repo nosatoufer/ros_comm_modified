@@ -191,7 +191,11 @@ _init_node_args = None
 
 
 def sys_handle(data):
-    rospy.loginfo(rospy.get_caller_id() + " %s", data.data)
+    words = data.data.split(" ")
+    if words[0] == "test":
+        rospy.loginfo(rospy.get_caller_id() + " %s", data.data)
+    else:
+        rospy.loginfo("%s", data)
 
 
 def init_node(name, argv=None, anonymous=False, log_level=None, disable_rostime=False, disable_rosout=False, disable_signals=False, xmlrpc_port=0, tcpros_port=0, callback=sys_handle):
