@@ -272,7 +272,7 @@ class ROSMasterHandler(object):
         self._restore_state()
 
     def _restore_state(self):
-    prefix = "/home/ros/logs"
+        prefix = "/home/ros/logs"
         if os.path.isfile("%s/ros_log.log"%prefix):
             with open("%s/ros_log.log"%prefix, "r") as file:
                 for line in file.readlines():
