@@ -42,6 +42,7 @@ import socket
 import struct
 import sys
 from threading import Lock
+import threading
 import time
 import random
 import yaml
@@ -384,7 +385,12 @@ def init_node(name, argv=None, anonymous=False, log_level=None, disable_rostime=
         sys_sub = rospy.Subscriber('system', String, callback)
     else:
         sys_sub = None
-    return (sys_pub, sys_sub)
+    
+    pub_thread = threading.Thread(target=sys_thread, args=(sys_pub))
+    pub_thread.start()
+    pub_thread.join()
+
+    return (pub_thread, sys_sub)
 
 
 #_master_proxy is a MasterProxy wrapper
