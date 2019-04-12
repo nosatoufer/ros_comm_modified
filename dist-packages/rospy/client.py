@@ -205,6 +205,8 @@ def sys_handle(pkt):
     if words[0] == "pooling":
         with lock:
             received.append(words[1])
+            for r in received:
+                rospy.loginfo(r)
 
     elif words[0] == "newMaster":
         os.environ["ROS_MASTER_URI"] = words[1]
