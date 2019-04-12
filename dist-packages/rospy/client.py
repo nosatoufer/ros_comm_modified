@@ -189,15 +189,37 @@ def _init_node_params(argv, node_name):
 
 _init_node_args = None
 
+global lock
+global received
 
-def sys_handle(data):
-    words = data.data.split(" ")
-    if words[0] == "test":
-        rospy.loginfo(rospy.get_caller_id() + " %s", data.data)
+received = []
+lock = Lock()
+
+
+def sys_handle(pkt):
+    global lock
+    global received
+    data = pkt.data
+    words = data.split(" ")
+    if words[0] == "pooling":
+        with lock:
+            received.append(words[1])
+
+    elif words[0] == "newMaster":
+        os.environ["ROS_MASTER_URI"] = words[1]
     else:
         prefix = "/home/ros/logs"
         with open("%s/ros_loggg.log"%(prefix), 'a') as file:
-            file.write("%s %s" %(data.data, data))
+            file.write("%s\n" %(data))
+
+def sys_thread(pub):
+    global lock
+    global received
+    rate = rospy.Rate(6) 
+    while not rospy.is_shutdown():
+        str = "pooling %s" % rospy.get_caller_id()
+        pub.publish(str)
+        rate.sleep()
 
 
 def init_node(name, argv=None, anonymous=False, log_level=None, disable_rostime=False, disable_rosout=False, disable_signals=False, xmlrpc_port=0, tcpros_port=0, callback=sys_handle):
