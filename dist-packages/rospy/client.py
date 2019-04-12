@@ -386,7 +386,7 @@ def init_node(name, argv=None, anonymous=False, log_level=None, disable_rostime=
     else:
         sys_sub = None
     
-    pub_thread = threading.Thread(target=sys_thread, args=(sys_pub))
+    pub_thread = threading.Thread(target=sys_thread, args=(sys_pub,))
     pub_thread.start()
     pub_thread.join()
 
