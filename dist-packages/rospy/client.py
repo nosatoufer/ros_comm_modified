@@ -390,7 +390,7 @@ def init_node(name, argv=None, anonymous=False, log_level=None, disable_rostime=
     #pub_thread.start()
     #pub_thread.join()
 
-    return (pub_thread, sys_sub)
+    return (sys_pub, sys_sub)
 
 
 #_master_proxy is a MasterProxy wrapper
