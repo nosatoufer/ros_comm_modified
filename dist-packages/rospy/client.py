@@ -207,19 +207,20 @@ def sys_handle(pkt):
     global c_lock
     data = pkt.data
     words = data.split(" ")
-    if words[0] == "pooling":
-        with r_lock:
-            received.append(words[1:])
-            rospy.loginfo("Received sys message")
-    elif words[0] == "election":
-        with c_lock:
-            candidates[words[1]] = words[2:]
-    elif words[0] == "newMaster":
-        os.environ["ROS_MASTER_URI"] = words[1]
-    else:
-        prefix = "/home/ros/logs"
-        with open("%s/ros_loggg.log"%(prefix), 'a') as file:
-            file.write("%s\n" %(data))
+    if words[0] is not rospy.get_caller_id():
+        if words[1] == "pooling":
+            with r_lock:
+                received.append(words[1:])
+                rospy.loginfo("Received sys message")
+        elif words[1] == "election":
+            with c_lock:
+                candidates[words[1]] = words[2:]
+        elif words[1] == "newMaster":
+            os.environ["ROS_MASTER_URI"] = words[1]
+        else:
+            prefix = "/home/ros/logs"
+            with open("%s/ros_loggg.log"%(prefix), 'a') as file:
+                file.write("%s\n" %(data))
 
 def sys_thread(pub):
     global received
@@ -229,7 +230,7 @@ def sys_thread(pub):
     time.sleep(1)
     rate = rospy.Rate(6) 
     while not rospy.is_shutdown():
-        str = "pooling %s" % rospy.get_caller_id()
+        str = "%s pooling" % rospy.get_caller_id()
         pub.publish(str)
         rate.sleep()
 
