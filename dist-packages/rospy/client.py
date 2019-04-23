@@ -207,6 +207,8 @@ def sys_handle(pkt):
     global c_lock
     data = pkt.data
     words = data.split(" ")
+    rospy.loginfo("pub %s" % rospy.get_caller_id())
+
     if words[0] is not rospy.get_caller_id():
         if words[1] == "pooling":
             with r_lock:
@@ -232,6 +234,7 @@ def sys_thread(pub):
     while not rospy.is_shutdown():
         str = "%s pooling" % rospy.get_caller_id()
         pub.publish(str)
+        rospy.loginfo("pub %s" % rospy.get_caller_id())
         rate.sleep()
 
 
