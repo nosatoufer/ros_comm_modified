@@ -211,7 +211,7 @@ def sys_handle(pkt):
     rospy.loginfo("sub rec = %s" % data)
     pass
 
-    if words[0] is not rospy.get_caller_id():
+    if words[0] != rospy.get_caller_id():
         if words[1] == "pooling":
             with r_lock:
                 received.append(words[1:])
