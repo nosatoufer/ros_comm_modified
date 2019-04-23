@@ -3,3 +3,5 @@
 
 git pull
 cp -r ./dist-packages/* /opt/ros/melodic/lib/python2.7/dist-packages
+
+source /opt/ros/melodic/setup.sh

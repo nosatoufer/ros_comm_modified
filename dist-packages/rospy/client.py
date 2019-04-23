@@ -190,24 +190,29 @@ def _init_node_params(argv, node_name):
 
 _init_node_args = None
 
-global lock
 global received
+global candidates
+global r_lock
+global c_lock
 
 received = []
-lock = Lock()
-
+candidates = {}
+r_lock = Lock()
+c_lock = Lock()
 
 def sys_handle(pkt):
-    global lock
     global received
+    global candidates
+    global r_lock
+    global c_lock
     data = pkt.data
     words = data.split(" ")
     if words[0] == "pooling":
-        with lock:
+        with r_lock:
             received.append(words[1])
-            for r in received:
-                rospy.loginfo(r)
-
+    elif words[0] == "election":
+        with c_lock:
+            candidates[words[1]] = words[2:]
     elif words[0] == "newMaster":
         os.environ["ROS_MASTER_URI"] = words[1]
     else:
@@ -216,8 +221,11 @@ def sys_handle(pkt):
             file.write("%s\n" %(data))
 
 def sys_thread(pub):
-    global lock
     global received
+    global candidates
+    global r_lock
+    global c_lock
+    time.sleep(1)
     rate = rospy.Rate(6) 
     while not rospy.is_shutdown():
         str = "pooling %s" % rospy.get_caller_id()
@@ -388,8 +396,8 @@ def init_node(name, argv=None, anonymous=False, log_level=None, disable_rostime=
     else:
         sys_sub = None
     
-    #pub_thread = threading.Thread(target=sys_thread, args=(sys_pub,))
-    #pub_thread.start()
+    pub_thread = threading.Thread(target=sys_thread, args=(sys_pub,))
+    pub_thread.start()
     #pub_thread.join()
 
     return (sys_pub, sys_sub)
