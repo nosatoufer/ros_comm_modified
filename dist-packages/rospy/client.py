@@ -207,9 +207,11 @@ def sys_handle(pkt):
     global c_lock
     data = pkt.data
     words = data.split(" ")
-    rospy.loginfo("pub %s" % rospy.get_caller_id())
+    rospy.loginfo("sub %s" % rospy.get_caller_id())
     rospy.loginfo("sub rec = %s" % data)
-    pass
+
+    rospy.loginfo("words[0] == %" % words[0])
+    
 
     if words[0] != rospy.get_caller_id():
         if words[1] == "pooling":
