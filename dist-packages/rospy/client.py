@@ -212,8 +212,9 @@ def sys_handle(pkt):
 
     rospy.loginfo("words[0] == %s" % words[0])
     
+    ID = rospy.get_caller_id()
 
-    if words[0] != rospy.get_caller_id():
+    if words[0] != ID:
         if words[1] == "pooling":
             with r_lock:
                 received.append(words[1:])
