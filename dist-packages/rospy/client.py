@@ -207,18 +207,13 @@ def sys_handle(pkt):
     global c_lock
     data = pkt.data
     words = data.split(" ")
-    rospy.loginfo("sub %s" % rospy.get_caller_id())
-    rospy.loginfo("sub rec = %s" % data)
 
-    rospy.loginfo("words[0] == %s" % words[0])
-    
     ID = rospy.get_caller_id()
-
     if words[0] != ID:
         if words[1] == "pooling":
             with r_lock:
                 received.append(words[1:])
-                rospy.loginfo("Received sys message")
+                rospy.loginfo("Received sys message : %s" % words[0])
         elif words[1] == "election":
             with c_lock:
                 candidates[words[1]] = words[2:]
@@ -239,7 +234,6 @@ def sys_thread(pub):
     while not rospy.is_shutdown():
         str = "%s pooling" % rospy.get_caller_id()
         pub.publish(str)
-        rospy.loginfo("pub %s" % rospy.get_caller_id())
         rate.sleep()
 
 
