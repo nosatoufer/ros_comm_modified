@@ -210,7 +210,7 @@ def sys_handle(pkt):
     rospy.loginfo("sub %s" % rospy.get_caller_id())
     rospy.loginfo("sub rec = %s" % data)
 
-    rospy.loginfo("words[0] == %" % words[0])
+    rospy.loginfo("words[0] == %s" % words[0])
     
 
     if words[0] != rospy.get_caller_id():
