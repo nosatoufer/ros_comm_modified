@@ -209,6 +209,7 @@ def sys_handle(pkt):
     words = data.split(" ")
     rospy.loginfo("pub %s" % rospy.get_caller_id())
     rospy.loginfo("sub rec = %s" % data)
+    pass
 
     if words[0] is not rospy.get_caller_id():
         if words[1] == "pooling":
