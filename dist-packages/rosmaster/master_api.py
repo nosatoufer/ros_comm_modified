@@ -73,7 +73,7 @@ from rosgraph.names import resolve_name
 import rosmaster.paramserver
 import rosmaster.threadpool
 
-from rosmaster.util import xmlrpcapi, log_operation
+from rosmaster.util import xmlrpcapi, log_operation, serialize
 from rosmaster.registrations import RegistrationManager
 from rosmaster.validators import non_empty, non_empty_str, not_none, is_api, is_topic, is_service, valid_type_name, valid_name, empty_or_valid_name, ParameterInvalid
 
@@ -738,7 +738,8 @@ class ROSMasterHandler(object):
 
             mloginfo("+SUB [%s] %s %s",topic, caller_id, caller_api)
             pub_uris = self.publishers.get_apis(topic)
-            log_operation("registerSubscriber", caller_id, caller_api, topic, topic_type)      
+            log_operation("registerSubscriber", caller_id, caller_api, topic, topic_type)
+            sysUpdate()   
         finally:
             self.ps_lock.release()
         return 1, "Subscribed to [%s]"%topic, pub_uris
@@ -842,7 +843,8 @@ class ROSMasterHandler(object):
             self._notify_topic_subscribers(topic, pub_uris, sub_uris)
             mloginfo("+PUB [%s] %s %s",topic, caller_id, caller_api)
             sub_uris = self.subscribers.get_apis(topic)
-            log_operation("registerPublisher", caller_id, caller_api, topic, topic_type)      
+            log_operation("registerPublisher", caller_id, caller_api, topic, topic_type)
+            sysUpdate("registerPublisher", caller id, serialize(caller_api), topic, topic_type)
         finally:
             self.ps_lock.release()
         return 1, "Registered [%s] as publisher of [%s]"%(caller_id, topic), sub_uris

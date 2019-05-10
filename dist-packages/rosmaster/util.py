@@ -102,3 +102,6 @@ def log_operation(name, caller_id, callback, *args):
                 pickle.dump(callback, cb_file)
                 file.write(" %s" % filename)
         file.write(" \n")
+
+def serialize(arg):
+    return pickle.dumps(arg)    
