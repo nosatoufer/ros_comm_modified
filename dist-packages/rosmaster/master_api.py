@@ -89,12 +89,12 @@ _logger = logging.getLogger("rosmaster.master")
 LOG_API = False
 
 
-def sysUpdate(msg, *args): 
+def sysUpdate(msg, *args):
+    rospy.init_node('sysUpdate', anonymous=True)
     pub = rospy.Publisher('System', String, queue_size=10)
-    str = ""
     for arg in args:
-        str = str + arg
-    pub.publish(str)
+        msg = "%s %s" % (msg, arg)
+    pub.publish(msg)
 
 
 def mloginfo(msg, *args):
