@@ -88,17 +88,14 @@ _logger = logging.getLogger("rosmaster.master")
 
 LOG_API = False
 
-"""
-def sysUpdate(msg, *args):
-    
-    Send a msg on System topic to warn of a topic update
-    
+
+def sysUpdate(msg, *args): 
     pub = rospy.Publisher('System', String, queue_size=10)
     str = ""
     for arg in args:
         str = str + arg
     pub.publish(str)
-"""
+
 
 def mloginfo(msg, *args):
     """
