@@ -843,6 +843,7 @@ class ROSMasterHandler(object):
             mloginfo("+PUB [%s] %s %s",topic, caller_id, caller_api)
             sub_uris = self.subscribers.get_apis(topic)
             log_operation("registerPublisher", caller_id, caller_api, topic, topic_type)
+            
             sysUpdate("registerPublisher", caller_id, serialize(caller_api), topic, topic_type)
         finally:
             self.ps_lock.release()
