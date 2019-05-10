@@ -64,7 +64,7 @@ import traceback
 import pickle
 #
 import rospy
-import String
+from std_msgs.msg import String
 #
 from rosgraph.xmlrpc import XmlRpcHandler
 
