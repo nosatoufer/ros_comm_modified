@@ -739,7 +739,6 @@ class ROSMasterHandler(object):
             mloginfo("+SUB [%s] %s %s",topic, caller_id, caller_api)
             pub_uris = self.publishers.get_apis(topic)
             log_operation("registerSubscriber", caller_id, caller_api, topic, topic_type)
-            sysUpdate()   
         finally:
             self.ps_lock.release()
         return 1, "Subscribed to [%s]"%topic, pub_uris
