@@ -90,9 +90,9 @@ LOG_API = False
 
 """
 def sysUpdate(msg, *args):
-    """
-    #Send a msg on System topic to warn of a topic update
-    """
+    
+    Send a msg on System topic to warn of a topic update
+    
     pub = rospy.Publisher('System', String, queue_size=10)
     str = ""
     for arg in args:
