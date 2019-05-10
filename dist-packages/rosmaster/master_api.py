@@ -90,6 +90,7 @@ LOG_API = False
 
 
 def sysUpdate(msg, *args):
+    _logger.info("test", "sysUpdate")
     rospy.init_node('sysUpdate', anonymous=True)
     pub = rospy.Publisher('System', String, queue_size=10)
     for arg in args:
