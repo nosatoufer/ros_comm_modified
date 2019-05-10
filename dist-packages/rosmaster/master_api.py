@@ -88,15 +88,17 @@ _logger = logging.getLogger("rosmaster.master")
 
 LOG_API = False
 
+"""
 def sysUpdate(msg, *args):
     """
-    Send a msg on System topic to warn of a topic update
+    #Send a msg on System topic to warn of a topic update
     """
     pub = rospy.Publisher('System', String, queue_size=10)
     str = ""
     for arg in args:
         str = str + arg
     pub.publish(str)
+"""
 
 def mloginfo(msg, *args):
     """
@@ -843,8 +845,8 @@ class ROSMasterHandler(object):
             mloginfo("+PUB [%s] %s %s",topic, caller_id, caller_api)
             sub_uris = self.subscribers.get_apis(topic)
             log_operation("registerPublisher", caller_id, caller_api, topic, topic_type)
-            
-            sysUpdate("registerPublisher", caller_id, serialize(caller_api), topic, topic_type)
+
+            #sysUpdate("registerPublisher", caller_id, serialize(caller_api), topic, topic_type)
         finally:
             self.ps_lock.release()
         return 1, "Registered [%s] as publisher of [%s]"%(caller_id, topic), sub_uris
