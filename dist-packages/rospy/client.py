@@ -213,7 +213,7 @@ def sys_handle(pkt):
         if words[1] == "pooling":
             with r_lock:
                 received.append(words[1:])
-                rospy.loginfo("Received sys message : %s" % words[0])
+                #rospy.loginfo("Received sys message : %s" % words[0])
         elif words[1] == "election":
             with c_lock:
                 candidates[words[1]] = words[2:]
