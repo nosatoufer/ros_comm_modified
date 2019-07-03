@@ -90,11 +90,12 @@ LOG_API = False
 
 
 def sysUpdate(msg, *args):
-    
+    pass
+    """
     for arg in args:
         msg = "%s %s" % (msg, arg)
     self.sysPub.publish(msg)
-
+    """
 
 def mloginfo(msg, *args):
     """
@@ -282,8 +283,8 @@ class ROSMasterHandler(object):
         self.param_server = rosmaster.paramserver.ParamDictionary(self.reg_manager)
         self._restore_state()
 
-        rospy.init_node('sysupdate', anonymous=True)
-        self.sysPub = rospy.Publisher('system', String, queue_size=10)  
+        #rospy.init_node('sysupdate', anonymous=True)
+        #self.sysPub = rospy.Publisher('system', String, queue_size=10)  
 
     def _restore_state(self):
         prefix = "/home/ros/logs"

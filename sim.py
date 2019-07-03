@@ -11,7 +11,7 @@ node = None
 def handleSys(data):
     msg = data.data
     words = msg.split(" ")
-    print(rospy.get_caller_id())
+    print(data)
     if  words[0] == "oob":
         name = words[1]
         node.rmOccupation(name)
@@ -29,6 +29,7 @@ def handleSys(data):
         node.move(words[2])
     else:
         pass
+    
 
 def handle(data):
     words = data.data.split(" ")
@@ -52,7 +53,6 @@ class Master():
         self.slots = 3
         self.master = None
         self.charger = (0,0)
-        self.pubSys.publish("newNode %s" %(name))
 
     def addNode(self, node):
         self.charging[node] = 100
@@ -95,6 +95,11 @@ if __name__ == '__main__':
         name = socket.gethostname()
         print(name)
         node = Master(name)
+        rospy.loginfo("newNode %s" % name)
+        rate = rospy.Rate(1)
+        while not rospy.is_shutdown():
+            node.pubSys.publish("newNode %s" % name)
+            rate.sleep()
         rospy.spin()
 
     except rospy.ROSInterruptException:
